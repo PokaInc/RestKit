@@ -101,8 +101,13 @@ NSString * const RKPropertyInspectionIsPrimitiveKey = @"isPrimitive";
         inspection = (self.inspectionCache)[objectClass];
     });
     if (inspection) return inspection;
-    
+
     inspection = [NSMutableDictionary dictionary];
+
+    // Poka Fixes: Ignore NSDictionary's properties to make them available to use as dictionary's keys
+    if (objectClass == (Class)[NSDictionary class] || objectClass == (Class) [NSMutableDictionary class]) {
+        return inspection;
+    }
 
     //include superclass properties
     Class currentClass = objectClass;
