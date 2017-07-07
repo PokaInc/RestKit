@@ -268,7 +268,25 @@ static id RKRefetchedValueInManagedObjectContext(id value, NSManagedObjectContex
                     NSMutableArray *keyPathComponents = [[keyPath componentsSeparatedByString:@"."] mutableCopy];
                     NSString *destinationKey = [keyPathComponents lastObject];
                     [keyPathComponents removeLastObject];
-                    id sourceObject = [keyPathComponents count] ? [mappingResultsAtRootKey valueForKeyPath:[keyPathComponents componentsJoinedByString:@"."]] : mappingResultsAtRootKey;
+                    
+                    id sourceObject;
+                    NSString *joinedKeyPath = [keyPathComponents componentsJoinedByString:@"."];
+                    if (keyPathComponents.count && [mappingResultsAtRootKey isKindOfClass:NSArray.class]) {
+                        NSMutableArray *so = NSMutableArray.new;
+                        for (id mappingResult in mappingResultsAtRootKey) {
+                            if ([mappingResult respondsToSelector:NSSelectorFromString(joinedKeyPath)]) {
+                                [so addObject:[mappingResult valueForKeyPath:joinedKeyPath]];
+                            }
+                        }
+                        sourceObject = so.copy;
+                    }
+                    else if (keyPathComponents.count && [mappingResultsAtRootKey respondsToSelector:NSSelectorFromString(joinedKeyPath)]) {
+                        sourceObject = [mappingResultsAtRootKey valueForKeyPath:joinedKeyPath];
+                    }
+                    else {
+                        sourceObject = mappingResultsAtRootKey;
+                    }
+                    
                     [self refetchSourceObject:sourceObject atDestinationKey:destinationKey];
                 }
             }
