@@ -276,7 +276,10 @@ static id RKRefetchedValueInManagedObjectContext(id value, NSManagedObjectContex
                         NSMutableArray *so = NSMutableArray.new;
                         for (id mappingResult in mappingResultsAtRootKey) {
                             if ([mappingResult respondsToSelector:NSSelectorFromString(joinedKeyPath)]) {
-                                [so addObject:[mappingResult valueForKeyPath:joinedKeyPath]];
+                                id object = [mappingResult valueForKeyPath:joinedKeyPath];
+                                if (object) {
+                                    [so addObject:object];
+                                }
                             }
                         }
                         sourceObject = so.copy;
